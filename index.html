@@ -1,172 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reset Password by Ben Yok</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estuda IPH • Mandume ya Ndemu Fayo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .heading-font { font-family: 'Space Grotesk', sans-serif; }
 
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f0f4f8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
+        .hero-bg {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a2a44 100%);
+        }
 
-    .container {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 380px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
+        .option {
+            transition: all 0.3s ease;
+        }
+        .option:hover { transform: translateX(8px); }
+        .option.disabled { opacity: 0.75; pointer-events: none; }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 1.2rem;
-      color: #333;
-      font-size: 18px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.4rem;
-      font-weight: bold;
-      color: #444;
-      font-size: 13px;
-    }
-
-    input[type="password"] {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      font-size: 14px;
-      transition: border-color 0.3s ease;
-    }
-
-    input[type="password"]:focus {
-      border-color: #007bff;
-      outline: none;
-    }
-
-    .show-password {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      font-size: 13px;
-      color: #555;
-    }
-
-    .show-password input {
-      margin-right: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .note {
-      margin-top: 0.8rem;
-      text-align: center;
-      font-size: 13px;
-      color: #777;
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        margin: 1rem;
-        padding: 1rem;
-      }
-    }
-  </style>
+        .correct { background-color: #14532d !important; border-color: #4ade80 !important; color: #4ade80; }
+        .wrong   { background-color: #7f1d1d !important; border-color: #f87171 !important; color: #f87171; }
+    </style>
 </head>
-<body>
+<body class="bg-zinc-950 text-white">
 
-  <div class="container">
-    <h2>Reset Your Password</h2>
-    <form onsubmit="handleReset(event)">
-      <label for="new-password">New Password</label>
-      <input type="password" id="new-password" required />
+    <!-- Navbar e Hero (mantidos iguais) -->
+    <nav class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-cyan-500 rounded-2xl flex items-center justify-center text-2xl">💻</div>
+                <div class="text-2xl font-bold heading-font tracking-tighter">
+                    Estuda<span class="text-cyan-400">IPH</span>
+                </div>
+            </div>
+            <div class="text-sm text-zinc-400">Mandume ya Ndemu Fayo • Engenharia Informática</div>
+        </div>
+    </nav>
 
-      <label for="confirm-password">Confirm Password</label>
-      <input type="password" id="confirm-password" required />
+    <!-- MODAL DISCIPLINA -->
+    <div id="modal-disciplina" onclick="if(event.target === this) fecharModal()" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]">
+        <div class="modal bg-zinc-900 w-full max-w-2xl mx-4 rounded-3xl p-8 max-h-[92vh] overflow-auto" onclick="event.stopImmediatePropagation()">
+            <div class="flex justify-between items-center mb-6 sticky top-0 bg-zinc-900 pb-4">
+                <div id="modal-titulo" class="text-3xl font-bold heading-font"></div>
+                <div class="flex items-center gap-4">
+                    <div id="score-display" class="bg-zinc-800 px-5 py-2 rounded-3xl text-sm font-medium">
+                        Pontuação: <span id="current-score" class="text-cyan-400">0/0</span>
+                    </div>
+                    <button onclick="fecharModal()" class="text-3xl text-zinc-400 hover:text-white">✕</button>
+                </div>
+            </div>
+            
+            <div id="modal-conteudo" class="space-y-10"></div>
+        </div>
+    </div>
 
-      <div class="show-password">
-        <input type="checkbox" id="show-password" onclick="togglePassword()" />
-        <label for="show-password">Show Password</label>
-      </div>
+    <script>
+        const disciplinas = {
+            1: {
+                titulo: "Arquitetura de Computadores",
+                emoji: "🖥️",
+                descricao: "Componentes do computador, pipeline, cache e assembly.",
+                topicos: ["Von Neumann", "Pipeline", "Cache", "Assembly", "I/O"],
+                exercicios: [
+                    { pergunta: "Qual é o ciclo básico da CPU?", 
+                      opcoes: ["Fetch-Decode-Execute", "Input-Process-Output", "Store-Load-Execute", "Read-Write-Cache"], correta: 0 },
+                    { pergunta: "O que significa ALU?", 
+                      opcoes: ["Arithmetic Logic Unit", "Advanced Load Unit", "Automatic Logic Unit", "All Logic Unit"], correta: 0 },
+                    { pergunta: "Para que serve a memória Cache?", 
+                      opcoes: ["Armazenar dados permanentes", "Acelerar o acesso à memória principal", "Guardar o sistema operativo", "Conectar periféricos"], correta: 1 },
+                    { pergunta: "Qual arquitetura é mais usada atualmente?", 
+                      opcoes: ["Harvard", "Von Neumann", "RISC", "CISC"], correta: 1 },
+                    { pergunta: "O que é um registrador?", 
+                      opcoes: ["Memória externa", "Memória interna da CPU muito rápida", "Disco rígido", "Placa de vídeo"], correta: 1 }
+                ]
+            },
+            2: {
+                titulo: "Teoria da Computação",
+                emoji: "🧠",
+                descricao: "Autómatos, linguagens e complexidade computacional.",
+                topicos: ["Autómatos", "Linguagens regulares", "Máquinas de Turing", "P vs NP"],
+                exercicios: [
+                    { pergunta: "Uma linguagem regular é reconhecida por:", 
+                      opcoes: ["Autómato finito", "Máquina de Turing", "Gramática livre de contexto", "Todas"], correta: 0 },
+                    { pergunta: "O problema da parada é:", 
+                      opcoes: ["Decidível", "Indecidível", "NP-Completo", "P"], correta: 1 },
+                    { pergunta: "O que é um autómato finito?", 
+                      opcoes: ["Máquina que tem memória infinita", "Máquina que reconhece linguagens regulares", "Máquina quântica", "Compilador"], correta: 1 },
+                    { pergunta: "P vs NP é um dos problemas mais famosos de:", 
+                      opcoes: ["Matemática", "Física", "Teoria da Computação", "Biologia"], correta: 2 },
+                    { pergunta: "Uma linguagem é recursiva se for aceita por:", 
+                      opcoes: ["Autómato finito", "Máquina de Turing que sempre para", "Gramática regular", "Nenhum"], correta: 1 }
+                ]
+            },
+            3: {
+                titulo: "Sistemas Operativos",
+                emoji: "💾",
+                descricao: "Processos, threads, escalonamento e memória.",
+                topicos: ["Processos", "Escalonamento", "Deadlock", "Memória virtual"],
+                exercicios: [
+                    { pergunta: "O que é um processo?", 
+                      opcoes: ["Programa em execução", "Um ficheiro", "Um utilizador", "Uma thread"], correta: 0 },
+                    { pergunta: "Qual algoritmo de escalonamento é justo?", 
+                      opcoes: ["FCFS", "Round Robin", "SJF", "Priority"], correta: 1 },
+                    { pergunta: "O que causa deadlock?", 
+                      opcoes: ["Memória insuficiente", "Mútua exclusão + espera circular", "CPU lenta", "Internet fraca"], correta: 1 },
+                    { pergunta: "O que é paginação?", 
+                      opcoes: ["Técnica de gestão de memória", "Tipo de vírus", "Protocolo de rede", "Comando do Linux"], correta: 0 }
+                ]
+            },
+            4: {
+                titulo: "Protocolos de Comunicação",
+                emoji: "🌐",
+                descricao: "Redes, TCP/IP, OSI e sockets.",
+                topicos: ["Modelo OSI", "TCP/IP", "HTTP", "Sockets"],
+                exercicios: [
+                    { pergunta: "Quantas camadas tem o modelo OSI?", 
+                      opcoes: ["5", "7", "4", "6"], correta: 1 },
+                    { pergunta: "Qual protocolo é orientado a conexão?", 
+                      opcoes: ["UDP", "TCP", "IP", "HTTP"], correta: 1 },
+                    { pergunta: "O que significa HTTP?", 
+                      opcoes: ["HyperText Transfer Protocol", "High Transfer Text Protocol", "Hyper Transfer Tool", "None"], correta: 0 }
+                ]
+            }
+        };
 
-      <button type="submit">Reset Password</button>
-    </form>
-    <div class="note" id="note"></div>
-  </div>
+        let pontuacaoAtual = 0;
+        let totalPerguntas = 0;
 
-  <script>
-    function isStrongPassword(password) {
-      // Pelo menos 8 caracteres, uma maiúscula, uma minúscula, um número
-      const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-      return pattern.test(password);
-    }
+        function abrirDisciplina(id) {
+            const disc = disciplinas[id];
+            if (!disc) return;
 
-    function togglePassword() {
-      const newPass = document.getElementById("new-password");
-      const confirmPass = document.getElementById("confirm-password");
-      const type = newPass.type === "password" ? "text" : "password";
-      newPass.type = type;
-      confirmPass.type = type;
-    }
+            pontuacaoAtual = 0;
+            totalPerguntas = disc.exercicios.length;
 
-    function handleReset(event) {
-      event.preventDefault();
-      const newPass = document.getElementById("new-password").value;
-      const confirmPass = document.getElementById("confirm-password").value;
-      const note = document.getElementById("note");
+            document.getElementById('modal-titulo').innerHTML = `${disc.emoji} ${disc.titulo}`;
+            document.getElementById('current-score').textContent = `0/${totalPerguntas}`;
 
-      if (!isStrongPassword(newPass)) {
-        note.style.color = "orange";
-        note.textContent = "Password must be at least 8 characters long and include uppercase, lowercase, and a number.";
-        return;
-      }
+            let html = `<p class="text-zinc-400 mb-8">${disc.descricao}</p>`;
 
-      if (newPass !== confirmPass) {
-        note.style.color = "red";
-        note.textContent = "Passwords do not match. Please try again.";
-        return;
-      }
+            html += `<h4 class="font-semibold mb-6 text-lg text-cyan-300">Exercícios de treino</h4>`;
 
-      // Sucesso simulado
-      note.style.color = "green";
-      note.textContent = "Passwords match. Password reset successful (simulated).";
-      document.querySelector("form").reset();
+            disc.exercicios.forEach((ex, index) => {
+                html += `
+                <div class="mb-10 bg-zinc-800/70 rounded-3xl p-7 border border-zinc-700">
+                    <p class="font-medium mb-6 text-lg">${index + 1}. ${ex.pergunta}</p>
+                    <div class="space-y-3" id="quiz-\( {id}- \){index}">
+                        ${ex.opcoes.map((op, i) => `
+                            <button onclick="responderQuiz(${id}, ${index}, ${i}, this)" 
+                                    class="option w-full text-left px-6 py-4 bg-zinc-700 hover:bg-zinc-600 rounded-2xl flex justify-between items-center border border-transparent text-left">
+                                ${op}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>`;
+            });
 
-      // Ocultar mensagem depois de 3 segundos
-      setTimeout(() => {
-        note.textContent = "";
-      }, 3000);
-    }
-  </script>
+            document.getElementById('modal-conteudo').innerHTML = html;
+            document.getElementById('modal-disciplina').classList.remove('hidden');
+        }
 
+        window.responderQuiz = function(disciplinaId, perguntaIndex, escolha, botao) {
+            const disc = disciplinas[disciplinaId];
+            const ex = disc.exercicios[perguntaIndex];
+            const container = document.getElementById(`quiz-\( {disciplinaId}- \){perguntaIndex}`);
+            const botoes = container.querySelectorAll('button');
+
+            // Bloquear todas as opções
+            botoes.forEach(b => {
+                b.disabled = true;
+                b.classList.add('disabled');
+            });
+
+            // Marcar correta
+            botoes[ex.correta].classList.add('correct');
+
+            // Marcar errada se o utilizador errou
+            if (escolha !== ex.correta) {
+                botao.classList.add('wrong');
+            } else {
+                pontuacaoAtual++;
+            }
+
+            // Atualizar pontuação
+            document.getElementById('current-score').textContent = `\( {pontuacaoAtual}/ \){totalPerguntas}`;
+        };
+
+        function fecharModal() {
+            document.getElementById('modal-disciplina').classList.add('hidden');
+        }
+
+        window.onload = () => {
+            console.log('%c✅ Site IPH Mandume ya Ndemu Fayo - Quiz melhorado!', 'color:#22d3ee; font-size:14px');
+        };
+    </script>
 </body>
-</html>
